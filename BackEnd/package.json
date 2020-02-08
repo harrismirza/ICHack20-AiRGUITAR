@@ -1,0 +1,22 @@
+{
+  "name": "GuitarThing",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "cross-env TF_FORCE_GPU_ALLOW_GROWTH=true node main.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@tensorflow-models/posenet": "^2.2.1",
+    "@tensorflow/tfjs-node-gpu": "^1.5.2",
+    "body-parser": "^1.19.0",
+    "canvas": "^2.6.1",
+    "cors": "^2.8.5",
+    "cross-env": "^7.0.0",
+    "data-uri-to-buffer": "^3.0.0",
+    "restana": "^4.0.7",
+    "sharp": "^0.24.0"
+  }
+}

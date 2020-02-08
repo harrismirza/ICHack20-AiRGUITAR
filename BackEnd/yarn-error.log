@@ -1,0 +1,48 @@
+Arguments: 
+  C:\Program Files\nodejs\node.exe C:\Program Files (x86)\Yarn\bin\yarn.js
+
+PATH: 
+  C:\tools\Anaconda3\envs\py27;C:\tools\Anaconda3\envs\py27\Library\mingw-w64\bin;C:\tools\Anaconda3\envs\py27\Library\usr\bin;C:\tools\Anaconda3\envs\py27\Library\bin;C:\tools\Anaconda3\envs\py27\Scripts;C:\tools\Anaconda3\envs\py27\bin;C:\tools\Anaconda3\condabin;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.0\bin;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.0\libnvvp;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0;C:\Windows\System32\OpenSSH;C:\ProgramData\chocolatey\bin;C:\Program Files\Git\cmd;C:\Program Files\MATLAB\R2019b\bin;C:\Program Files\Java\jdk8u222-b10\bin;C:\Program Files\Microsoft VS Code\bin;C:\Program Files\nodejs;C:\Program Files (x86)\Yarn\bin;C:\Program Files\PuTTY;C:\Program Files\NVIDIA Corporation\NVIDIA NvDLISR;C:\Program Files (x86)\Graphviz2.38\bin;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.0\lib\x64;C:\Users\harri\AppData\Local\Microsoft\WindowsApps;C:\Users\harri\AppData\Roaming\npm;C:\Users\harri\AppData\Local\Yarn\bin;.
+
+Yarn version: 
+  1.19.1
+
+Node version: 
+  12.11.1
+
+Platform: 
+  win32 x64
+
+Trace: 
+  SyntaxError: C:\Users\harri\Desktop\GuitarThing\package.json: Unexpected token } in JSON at position 362
+      at JSON.parse (<anonymous>)
+      at C:\Program Files (x86)\Yarn\lib\cli.js:1625:59
+      at Generator.next (<anonymous>)
+      at step (C:\Program Files (x86)\Yarn\lib\cli.js:304:30)
+      at C:\Program Files (x86)\Yarn\lib\cli.js:315:13
+
+npm manifest: 
+  {
+    "name": "GuitarThing",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+      "dev": "node main.js"
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+      "@tensorflow-models/posenet": "^2.2.1",
+      "@tensorflow/tfjs-node-gpu": "^1.5.2",
+      "body-parser": "^1.19.0",
+      "canvas": "^2.6.1",
+      "restana": "^4.0.7",
+    }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
