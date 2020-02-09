@@ -24,7 +24,6 @@ def parseChordInfo(chordFilePath):
 			for string, note in enumerate(chordNotes):
 				if note != "x":
 					chordMidiNotes[string] = standardTuningMIDINotes[string] + int(note)
-
 			chords.append((chordName, chordMidiNotes))
 	return chords
 
@@ -64,8 +63,7 @@ def drawFretboard(frame, pose):
 		cv2.line(frame, bottomLineStart, bottomLineEnd, (0, 0, 255))
 
 		rightHand = (int(rightHandPos["x"]), int(rightHandPos["y"]))
-		interDistances = [0] + [(fretBoardLength/2) * math.log10(x) for x in range(fretBoardLength//numberOfNotes, fretBoardLength + 1, fretBoardLength//numberOfNotes)]
-
+		
 		d = (abs((((topLineEnd[1] - topLineStart[1])*rightHand[0] - (topLineEnd[0] - topLineStart[0])*rightHand[1]) + (topLineEnd[0]*topLineStart[1] - topLineEnd[1]*topLineStart[0])))/fretBoardLength)
 		d2 = d ** 2
 		b2 = (topLineEnd[1] - rightHand[1])**2 + (topLineEnd[0] - rightHand[0])**2
