@@ -1,5 +1,4 @@
 import cv2
-import numpy as np
 import requests
 import base64
 from datetime import datetime
@@ -7,7 +6,9 @@ import math
 from collections import deque
 import sys
 import mido
-from time import sleep
+from time import sleep, time_ns
+import threading
+
 
 standardTuningMIDINotes = [40, 45, 50, 55, 59, 64]
 
@@ -50,25 +51,28 @@ def drawFretboard(frame, pose):
 
 		gradient = ((rightShoulderPos["y"] - leftShoulderPos["y"])/(rightShoulderPos["x"] - leftShoulderPos["x"]))
 		theta = -math.tan(gradient)
+		sintheta = math.sin(theta)
+		costheta = math.cos(theta)
 
 		topLineStart = (int(rightShoulderPos["x"]), int(rightShoulderPos["y"]))
-		topLineEnd =  (int(topLineStart[0] - fretBoardLength * math.cos(theta)), int(topLineStart[1] + fretBoardLength * math.sin(theta)))
+		topLineEnd =  (int(topLineStart[0] - fretBoardLength * costheta), int(topLineStart[1] + fretBoardLength * sintheta))
 		cv2.line(frame, topLineStart, topLineEnd, (0, 0, 255))
 
-		bottomLineStart = (int(rightShoulderPos["x"] +  + fretLineLength * math.sin(theta))), int(rightShoulderPos["y"] + fretLineLength * math.cos(theta))
-		bottomLineEnd =  (int(bottomLineStart[0] - fretBoardLength * math.cos(theta)), int(bottomLineStart[1] + fretBoardLength * math.sin(theta)))
+		bottomLineStart = (int(rightShoulderPos["x"] + fretLineLength * sintheta)), int(rightShoulderPos["y"] + fretLineLength * costheta)
+		bottomLineEnd =  (int(bottomLineStart[0] - fretBoardLength * costheta), int(bottomLineStart[1] + fretBoardLength * sintheta))
 		cv2.line(frame, bottomLineStart, bottomLineEnd, (0, 0, 255))
 
 		rightHand = (int(rightHandPos["x"]), int(rightHandPos["y"]))
+		interDistances = [0] + [(fretBoardLength/2) * math.log10(x) for x in range(fretBoardLength//numberOfNotes, fretBoardLength + 1, fretBoardLength//numberOfNotes)]
 
 		for chordIndex, interDistance in enumerate(range(0, fretBoardLength + 1, fretBoardLength//numberOfNotes)):
-			interLineStart = (int(topLineEnd[0] + interDistance * math.cos(-theta)), int(topLineEnd[1] + interDistance * math.sin(-theta)))
-			interLineEnd = (int(interLineStart[0] + fretLineLength * math.sin(theta)), int(interLineStart[1] + fretLineLength * math.cos(theta)))
+			interLineStart = (int(topLineEnd[0] + interDistance * costheta), int(topLineEnd[1] + interDistance * -sintheta))
+			interLineEnd = (int(interLineStart[0] + fretLineLength * sintheta), int(interLineStart[1] + fretLineLength * costheta))
 			cv2.line(frame, interLineStart, interLineEnd, (0, 0, 255))
 			if chordIndex < len(chords):
 				chordName = chords[chordIndex][0]
 				fontScale = 1
-				while cv2.getTextSize(chordName, cv2.FONT_HERSHEY_SIMPLEX, fontScale, 1)[0][0] >= 70:
+				while cv2.getTextSize(chordName, cv2.FONT_HERSHEY_SIMPLEX, fontScale, 1)[0][0] >= (fretBoardLength / numberOfNotes):
 					fontScale *= 0.9
 				cv2.putText(frame, chordName, (interLineEnd[0] + 5, interLineEnd[1] - 5), cv2.FONT_HERSHEY_SIMPLEX, fontScale, (0, 0, 255), 2)
 
@@ -87,9 +91,8 @@ def drawFretboard(frame, pose):
 
 
 cap = cv2.VideoCapture(cv2.CAP_DSHOW)
-midi = mido.open_output()
-midi.send(mido.Message('program_change', channel=0, program=26))
-
+print(mido.get_output_names())
+midi = mido.open_output('VirtualMIDISynth #1 0')
 
 def playChord(outputPort, chordNotes):
 	for note in chordNotes:
@@ -98,10 +101,6 @@ def playChord(outputPort, chordNotes):
 			sleep(0.05)
 
 
-
-
-averageLength = 1
-leftHandVelocities = deque([], averageLength)
 lastLeftHandPosition = 0
 
 blockStrum = True
@@ -119,35 +118,31 @@ while(True):
 
 	json = response.json()
 
+	leftHandVelocity = 0
+
 	if json["score"] > 0.3:
 		for keypoint in json["keypoints"]:
 			if keypoint["score"] > 0.5:
 				if keypoint["part"] == "leftWrist":
 					leftHandPosition = int(keypoint["position"]["y"])
-					leftHandVelocities.append(leftHandPosition - lastLeftHandPosition)
+					leftHandVelocity  = (leftHandPosition - lastLeftHandPosition)
 					lastLeftHandPosition = leftHandPosition
 				if keypoint["part"] == "rightWrist":
 					cv2.circle(flipped, (int(keypoint["position"]["x"]), int(keypoint["position"]["y"])), 5, (0, 0, 255))
 
-
-
-	leftHandVelocity = sum(leftHandVelocities)/averageLength
-
-
 	cv2.circle(flipped, (400, 300), 10, (0, 255, 0))
-	cv2.line(flipped, (0, 300), (800, 300), 2, (0, 255, 0))
+	cv2.line(flipped, (0, 300), (800, 300), (0, 255, 0))
 
 	noteIndex = drawFretboard(flipped, json)
 
-	if (leftHandVelocity) > 10 and (leftHandVelocities[-1] > 250  or leftHandVelocities[-1] < 350) and not blockStrum:
+	if (leftHandVelocity) > 10 and (leftHandPosition > 250  or leftHandPosition < 350) and not blockStrum:
 		if noteIndex is not None:
-			print("strum " + chords[noteIndex][0])
-			playChord(midi, chords[noteIndex][1])
+			print("strum", chords[noteIndex][0], chords[noteIndex][1])
+			threading.Thread(target=playChord, args=(midi, chords[noteIndex][1])).start()
 			blockStrum = True
 		
 	if blockStrum and leftHandVelocity < 0:
 		blockStrum = False
-
 	
 
 	frameTime = datetime.now() - startTime
@@ -162,3 +157,4 @@ while(True):
 
 cap.release()
 cv2.destroyAllWindows()
+midi.close()

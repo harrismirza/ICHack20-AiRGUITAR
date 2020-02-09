@@ -1,4 +1,5 @@
 const tfjs = require('@tensorflow/tfjs-node-gpu');
+tfjs.enableProdMode();
 const posenet = require('@tensorflow-models/posenet');
 
 const service = require('restana')();
@@ -29,7 +30,6 @@ service.use(cors());
 service.use(bodyParser.json({limit: '50mb'}));
 
 service.post('/', async (req, res) => {
-
 	if(net === undefined){
 		console.log("Loading PoseNet!");
 		net = await posenet.load(networkSettings);
