@@ -31,7 +31,8 @@ def parseChordInfo(chordFilePath):
 chords = parseChordInfo(sys.argv[1])
 
 fretBoardLength = 300
-fretLineLength = 50
+fretLineLength = 500
+fretTextDistance = 50
 numberOfNotes = len(chords)
 
 print(chords)
@@ -74,7 +75,9 @@ def drawFretboard(frame, pose):
 				fontScale = 1
 				while cv2.getTextSize(chordName, cv2.FONT_HERSHEY_SIMPLEX, fontScale, 1)[0][0] >= (fretBoardLength / numberOfNotes):
 					fontScale *= 0.9
-				cv2.putText(frame, chordName, (interLineEnd[0] + 5, interLineEnd[1] - 5), cv2.FONT_HERSHEY_SIMPLEX, fontScale, (0, 0, 255), 2)
+
+				chordTextBaseline = (int(interLineStart[0] + fretTextDistance * sintheta), int(interLineStart[1] + fretTextDistance * costheta))
+				cv2.putText(frame, chordName, (chordTextBaseline[0] + 5, chordTextBaseline[1] - 5), cv2.FONT_HERSHEY_SIMPLEX, fontScale, (0, 0, 255), 2)
 
 		d = (abs((((topLineEnd[1] - topLineStart[1])*rightHand[0] - (topLineEnd[0] - topLineStart[0])*rightHand[1]) + (topLineEnd[0]*topLineStart[1] - topLineEnd[1]*topLineStart[0])))/fretBoardLength)
 		d2 = d ** 2
@@ -136,8 +139,9 @@ while(True):
 
 	noteIndex = drawFretboard(flipped, json)
 
-	if (leftHandVelocity) > 10 and (leftHandPosition > 250  or leftHandPosition < 350) and not blockStrum:
+	if (leftHandVelocity) > 10 and (leftHandPosition > 280  or leftHandPosition < 320) and not blockStrum:
 		if noteIndex is not None:
+			print(leftHandVelocity)
 			print("strum", chords[noteIndex][0], chords[noteIndex][1])
 			threading.Thread(target=playChord, args=(midi, chords[noteIndex][1])).start()
 			blockStrum = True

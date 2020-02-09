@@ -11,7 +11,7 @@ const dataUriToBuffer = require('data-uri-to-buffer');
 
 const sharp = require('sharp');
 
-const imageDim = 250;
+const imageDim = 200;
 
 const networkSettings = {
 	architecture: 'ResNet50',
