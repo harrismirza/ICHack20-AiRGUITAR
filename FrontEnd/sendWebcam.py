@@ -127,7 +127,8 @@ while(True):
 					leftHandPosition = int(keypoint["position"]["y"])
 					leftHandVelocity  = (leftHandPosition - lastLeftHandPosition)
 					lastLeftHandPosition = leftHandPosition
-				if keypoint["part"] == "rightWrist":
+					cv2.circle(flipped, (int(keypoint["position"]["x"]), int(keypoint["position"]["y"])), 5, (0, 0, 255))
+				elif keypoint["part"] == "rightWrist":
 					cv2.circle(flipped, (int(keypoint["position"]["x"]), int(keypoint["position"]["y"])), 5, (0, 0, 255))
 
 	cv2.circle(flipped, (400, 300), 10, (0, 255, 0))
