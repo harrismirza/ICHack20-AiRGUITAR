@@ -66,6 +66,16 @@ def drawFretboard(frame, pose):
 		rightHand = (int(rightHandPos["x"]), int(rightHandPos["y"]))
 		interDistances = [0] + [(fretBoardLength/2) * math.log10(x) for x in range(fretBoardLength//numberOfNotes, fretBoardLength + 1, fretBoardLength//numberOfNotes)]
 
+		d = (abs((((topLineEnd[1] - topLineStart[1])*rightHand[0] - (topLineEnd[0] - topLineStart[0])*rightHand[1]) + (topLineEnd[0]*topLineStart[1] - topLineEnd[1]*topLineStart[0])))/fretBoardLength)
+		d2 = d ** 2
+		b2 = (topLineEnd[1] - rightHand[1])**2 + (topLineEnd[0] - rightHand[0])**2
+		a = math.sqrt(b2 - d2)
+		noteIndex = int(a//(fretBoardLength/numberOfNotes))
+		if noteIndex < 0:
+			noteIndex = 0
+		elif noteIndex >= numberOfNotes:
+			noteIndex = numberOfNotes - 1
+
 		for chordIndex, interDistance in enumerate(range(0, fretBoardLength + 1, fretBoardLength//numberOfNotes)):
 			interLineStart = (int(topLineEnd[0] + interDistance * costheta), int(topLineEnd[1] + interDistance * -sintheta))
 			interLineEnd = (int(interLineStart[0] + fretLineLength * sintheta), int(interLineStart[1] + fretLineLength * costheta))
@@ -76,19 +86,15 @@ def drawFretboard(frame, pose):
 				while cv2.getTextSize(chordName, cv2.FONT_HERSHEY_SIMPLEX, fontScale, 1)[0][0] >= (fretBoardLength / numberOfNotes):
 					fontScale *= 0.9
 
-				chordTextBaseline = (int(interLineStart[0] + fretTextDistance * sintheta), int(interLineStart[1] + fretTextDistance * costheta))
-				cv2.putText(frame, chordName, (chordTextBaseline[0] + 5, chordTextBaseline[1] - 5), cv2.FONT_HERSHEY_SIMPLEX, fontScale, (0, 0, 255), 2)
+				colour = (0, 0, 255)
+				if chordIndex == noteIndex:
+					colour = (0, 255, 0)
 
-		d = (abs((((topLineEnd[1] - topLineStart[1])*rightHand[0] - (topLineEnd[0] - topLineStart[0])*rightHand[1]) + (topLineEnd[0]*topLineStart[1] - topLineEnd[1]*topLineStart[0])))/fretBoardLength)
-		d2 = d ** 2
-		b2 = (topLineEnd[1] - rightHand[1])**2 + (topLineEnd[0] - rightHand[0])**2
-		a = math.sqrt(b2 - d2)
-		noteIndex = a//(fretBoardLength/numberOfNotes)
-		if noteIndex < 0:
-			noteIndex = 0
-		elif noteIndex >= numberOfNotes:
-			noteIndex = numberOfNotes - 1
-		return int(noteIndex)
+				chordTextBaseline = (int(interLineStart[0] + fretTextDistance * sintheta), int(interLineStart[1] + fretTextDistance * costheta))
+				cv2.putText(frame, chordName, (chordTextBaseline[0] + 5, chordTextBaseline[1] - 5), cv2.FONT_HERSHEY_SIMPLEX, fontScale, colour, 2)
+
+
+		return noteIndex
 	except Exception as e:
 		pass
 
