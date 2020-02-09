@@ -31,7 +31,7 @@ def parseChordInfo(chordFilePath):
 chords = parseChordInfo(sys.argv[1])
 
 fretBoardLength = 300
-fretLineLength = 500
+fretLineLength = 1000
 fretTextDistance = 50
 numberOfNotes = len(chords)
 
@@ -140,15 +140,15 @@ while(True):
 				elif keypoint["part"] == "rightWrist":
 					cv2.circle(flipped, (int(keypoint["position"]["x"]), int(keypoint["position"]["y"])), 5, (0, 0, 255))
 
-	cv2.circle(flipped, (400, 300), 10, (0, 255, 0))
+	#cv2.circle(flipped, (400, 300), 10, (0, 255, 0))
 	cv2.line(flipped, (0, 300), (800, 300), (0, 255, 0))
 
 	noteIndex = drawFretboard(flipped, json)
 
 	if (leftHandVelocity) > 10 and (leftHandPosition > 280  or leftHandPosition < 320) and not blockStrum:
 		if noteIndex is not None:
-			print(leftHandVelocity)
-			print("strum", chords[noteIndex][0], chords[noteIndex][1])
+			#print(leftHandVelocity)
+			#print("strum", chords[noteIndex][0], chords[noteIndex][1])
 			threading.Thread(target=playChord, args=(midi, chords[noteIndex][1])).start()
 			blockStrum = True
 		
